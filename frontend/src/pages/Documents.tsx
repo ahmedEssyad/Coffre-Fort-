@@ -5,9 +5,6 @@ import {
   Trash2,
   Upload,
   FileText,
-  CheckCircle2,
-  Loader2,
-  Mail,
   X
 } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
@@ -240,12 +237,6 @@ const DocumentUploadModal = ({
   const [documentTypeId, setDocumentTypeId] = useState<number>(0);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [uploadedDocId, setUploadedDocId] = useState<number | null>(null);
-  const [ocrStatus, setOcrStatus] = useState<{
-    ready: boolean;
-    pageCount: number;
-    processedPages: number;
-  } | null>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -287,11 +278,14 @@ const DocumentUploadModal = ({
 
     try {
       setUploading(true);
-      const result = await mayanService.uploadDocument(file, documentTypeId, label);
-      setUploadedDocId(result.id);
+      await mayanService.uploadDocument(file, documentTypeId, label);
 
-      // Start polling OCR status
-      pollOCRStatus(result.id);
+      // Upload successful - close modal immediately
+      showToast.success(`Document "${label || file.name}" uploadé avec succès! OCR en cours...`);
+      onUploadSuccess();
+
+      // OCR will be processed in background by Mayan Celery workers
+      // User can view document status in the documents list
     } catch (err) {
       console.error('Upload failed:', err);
       const errorMessage = extractErrorMessage(err);
@@ -300,39 +294,6 @@ const DocumentUploadModal = ({
     }
   };
 
-  const pollOCRStatus = async (docId: number) => {
-    const maxAttempts = 40; // Poll for up to 2 minutes
-    let attempts = 0;
-
-    const checkStatus = async () => {
-      try {
-        const status = await mayanService.checkOCRStatus(docId);
-        setOcrStatus({
-          ready: status.hasOCR,
-          pageCount: 1,
-          processedPages: status.hasOCR ? 1 : 0,
-        });
-
-        if (status.hasOCR) {
-          // OCR is complete
-          setTimeout(() => {
-            onUploadSuccess();
-          }, 1500); // Show success message briefly
-        } else if (attempts < maxAttempts) {
-          attempts++;
-          setTimeout(checkStatus, 3000); // Check again in 3 seconds
-        } else {
-          // Timeout - close anyway
-          onUploadSuccess();
-        }
-      } catch (err) {
-        console.error('Failed to check OCR status:', err);
-        onUploadSuccess();
-      }
-    };
-
-    checkStatus();
-  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -399,43 +360,13 @@ const DocumentUploadModal = ({
             </label>
           </div>
 
-          {uploadedDocId && ocrStatus && (
-            <div className={`upload-status ${ocrStatus.ready ? 'success' : 'processing'}`}>
-              <div className="status-content">
-                <div className={`status-icon ${ocrStatus.ready ? 'success' : 'processing'}`}>
-                  {ocrStatus.ready ? (
-                    <CheckCircle2 size={24} />
-                  ) : (
-                    <Loader2 size={24} className="spin" />
-                  )}
-                </div>
-                <div className="status-text">
-                  <p className={`status-title ${ocrStatus.ready ? 'success' : 'processing'}`}>
-                    {ocrStatus.ready ? 'Téléversement Terminé !' : 'Traitement du Document...'}
-                  </p>
-                  <p className={`status-description ${ocrStatus.ready ? 'success' : 'processing'}`}>
-                    {ocrStatus.ready
-                      ? 'Traitement OCR terminé. Vous pouvez maintenant analyser ce document.'
-                      : `OCR extrait le texte de votre document (${ocrStatus.processedPages}/${ocrStatus.pageCount} pages)`
-                    }
-                  </p>
-                </div>
-              </div>
-              {ocrStatus.ready && (
-                <div className="status-info">
-                  <Mail size={14} className="status-info-icon" />
-                  <span>Document prêt pour l'analyse IA</span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="modal-footer">
           <button
             className="btn btn-secondary"
             onClick={onClose}
-            disabled={uploading && !ocrStatus}
+            disabled={uploading}
           >
             Annuler
           </button>
@@ -444,15 +375,10 @@ const DocumentUploadModal = ({
             onClick={handleUpload}
             disabled={uploading || !file || !documentTypeId}
           >
-            {uploading && !uploadedDocId ? (
+            {uploading ? (
               <>
                 <Upload size={18} className="spin" />
                 Téléversement...
-              </>
-            ) : uploading ? (
-              <>
-                <Loader2 size={18} className="spin" />
-                Traitement OCR...
               </>
             ) : (
               <>

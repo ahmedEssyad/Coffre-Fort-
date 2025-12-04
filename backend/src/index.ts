@@ -8,6 +8,7 @@ import accessRoutes from './routes/accessRoutes';
 import documentRoutes from './routes/documentRoutes';
 import aiRoutes from './routes/aiRoutes';
 import adminRoutes from './routes/adminRoutes';
+import jobRoutes from './routes/jobRoutes';
 import config from './config/env';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
@@ -40,9 +41,11 @@ app.get('/health', (req: Request, res: Response) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/access', accessRoutes);
-app.use('/api/documents', documentRoutes);
+// Documents are accessed directly via Mayan API from frontend
+// app.use('/api/documents', documentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // API info endpoint
 app.get('/api', (req: Request, res: Response) => {
@@ -53,9 +56,11 @@ app.get('/api', (req: Request, res: Response) => {
       health: '/health',
       auth: '/api/auth/*',
       access: '/api/access/*',
-      documents: '/api/documents/*',
-      ai: '/api/ai/*'
-    }
+      ai: '/api/ai/*',
+      admin: '/api/admin/*',
+      jobs: '/api/jobs/*'
+    },
+    note: 'Documents are accessed directly via Mayan API. Use GET /api/auth/mayan-config to get credentials.'
   });
 });
 

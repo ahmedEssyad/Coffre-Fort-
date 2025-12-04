@@ -135,17 +135,20 @@ cd nuitinfo
 # 2. Copier le fichier d'environnement
 cp .env.example .env
 
-# 3. Démarrer TOUS les services (une seule commande !)
-docker-compose up -d
+# 3. Détecter l'IP automatiquement (pour accès réseau)
+./get-host-ip.sh
 
-# 4. Attendre que tous les services démarrent (2-3 minutes)
+# 4. Démarrer TOUS les services (une seule commande !)
+docker-compose up -d --build
+
+# 5. Attendre que tous les services démarrent (2-3 minutes)
 # Surveillez les logs :
 docker-compose logs -f
 
-# 5. Télécharger le modèle IA (première fois uniquement - peut prendre 5-10 min)
+# 6. Télécharger le modèle IA (première fois uniquement - peut prendre 5-10 min)
 docker exec -it mayanconnect-ollama ollama pull llama3.2:3b
 
-# 6. Vérifier que tous les services sont actifs
+# 7. Vérifier que tous les services sont actifs
 docker-compose ps
 ```
 

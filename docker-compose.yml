@@ -38,6 +38,43 @@ services:
       - mayanconnect-network
     restart: unless-stopped
 
+  # PostgreSQL pour Keycloak
+  keycloak-db:
+    image: postgres:15-alpine
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloakdbpass
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    networks:
+      - mayanconnect-network
+    restart: unless-stopped
+
+  # Keycloak Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: mayanconnect-keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloakdbpass
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+    ports:
+      - "8080:8080"
+    networks:
+      - mayanconnect-network
+    depends_on:
+      - keycloak-db
+    restart: unless-stopped
+
   # Mayan EDMS
   mayan:
     image: mayanedms/mayanedms:latest
@@ -83,6 +120,10 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL:-noreply@correyo.com}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: mayanconnect
+      KEYCLOAK_CLIENT_ID: backend-service
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
     ports:
       - "3001:3000"
     networks:
@@ -91,6 +132,7 @@ services:
       - backend-db
       - mayan
       - ollama
+      - keycloak
     restart: unless-stopped
 
   # Frontend Client
@@ -99,8 +141,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_BACKEND_API_URL: /api
-        VITE_MAYAN_API_URL: http://localhost:8000
+        VITE_BACKEND_API_URL: http://${HOST_IP:-localhost}:3001/api
+        VITE_MAYAN_API_URL: http://${HOST_IP:-localhost}:8000
+        VITE_KEYCLOAK_URL: http://${HOST_IP:-localhost}:8080
     container_name: mayanconnect-frontend
     ports:
       - "80:80"
@@ -109,6 +152,8 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    environment:
+      - HOST_IP=${HOST_IP:-localhost}
 
   # Ollama AI Service
   ollama:
@@ -122,6 +167,21 @@ services:
       - mayanconnect-network
     restart: unless-stopped
 
+  # NGINX Reverse Proxy pour Mayan (avec JWT vérification)
+  mayan-proxy:
+    image: nginx:alpine
+    container_name: mayan-nginx-proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8001:8001"
+    networks:
+      - mayanconnect-network
+    depends_on:
+      - mayan
+      - keycloak
+    restart: unless-stopped
+
 networks:
   mayanconnect-network:
     driver: bridge
@@ -132,6 +192,8 @@ volumes:
     name: mayan-db-data
   backend-db-data:
     name: backend-db-data
+  keycloak-db-data:
+    name: keycloak-db-data
   mayan-media:
     name: mayan-media
   ollama-data:

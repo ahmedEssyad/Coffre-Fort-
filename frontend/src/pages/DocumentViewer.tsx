@@ -7,7 +7,8 @@ import {
   Loader2
 } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
-import { documentsApi, aiApi, Document, DocumentAnalysis } from '../services/api';
+import { aiApi, jobsApi, Document, DocumentAnalysis, AnalysisJob } from '../services/api';
+import { mayanService } from '../services/mayanService';
 import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './DocumentViewer.css';
@@ -19,6 +20,7 @@ const DocumentViewer = () => {
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState<string>('');
   const [error, setError] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
   const [ocrStatus, setOcrStatus] = useState<{
@@ -41,12 +43,17 @@ const DocumentViewer = () => {
 
     const checkOCR = async () => {
       try {
-        const status = await documentsApi.checkOCRStatus(parseInt(id));
-        setOcrStatus(status);
+        const status = await mayanService.checkOCRStatus(parseInt(id));
+        // Convert mayanService response to expected format
+        setOcrStatus({
+          ready: status.hasOCR,
+          pageCount: 1,
+          processedPages: status.hasOCR ? 1 : 0
+        });
         setCheckingOcr(false);
 
         // Stop polling if OCR is ready
-        if (status.ready && intervalId) {
+        if (status.hasOCR && intervalId) {
           clearInterval(intervalId);
         }
       } catch (err) {
@@ -71,11 +78,11 @@ const DocumentViewer = () => {
   const loadDocument = async () => {
     try {
       setLoading(true);
-      const doc = await documentsApi.get(parseInt(id!));
+      const doc = await mayanService.getDocument(parseInt(id!));
       setCurrentDoc(doc);
 
       // Load PDF for preview
-      const blob = await documentsApi.download(parseInt(id!));
+      const blob = await mayanService.downloadDocument(parseInt(id!));
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
     } catch (err) {
@@ -91,22 +98,66 @@ const DocumentViewer = () => {
   const handleAnalyze = async () => {
     try {
       setAnalyzing(true);
-      const result = await aiApi.analyze(parseInt(id!));
-      setAnalysis(result);
-      showToast.success(SuccessMessages.ANALYSIS_SUCCESS);
+      setAnalysisProgress('Vérification du cache...');
+
+      // Start analysis request (checks cache first)
+      const response = await aiApi.analyze(parseInt(id!));
+
+      // Check if result is from cache (HTTP 200) or new job (HTTP 202)
+      if ('summary' in response && 'keywords' in response) {
+        // Cached result - display immediately
+        console.log(`[DocumentViewer] Cached result received for document ${id}`);
+        const cached = response as { summary: string; keywords: string[] };
+        setAnalysis({
+          documentId: parseInt(id!),
+          summary: cached.summary,
+          keywords: cached.keywords,
+        });
+        showToast.success('Analyse récupérée du cache');
+      } else if ('jobId' in response) {
+        // New job - poll for completion
+        const jobId = response.jobId;
+        console.log(`[DocumentViewer] Analysis job started: ${jobId}`);
+        setAnalysisProgress('Analyse en cours...');
+
+        // Poll job status with progress updates
+        const completedJob = await jobsApi.pollJobUntilComplete(
+          jobId,
+          (job: AnalysisJob) => {
+            // Update progress message based on job status
+            if (job.status === 'PENDING') {
+              setAnalysisProgress('En attente...');
+            } else if (job.status === 'PROCESSING') {
+              setAnalysisProgress('Analyse en cours avec IA...');
+            }
+            console.log(`[DocumentViewer] Job status: ${job.status}`);
+          },
+          60, // 60 attempts max
+          3000 // 3 seconds interval
+        );
+
+        // Job completed successfully
+        if (completedJob.result) {
+          setAnalysis(completedJob.result);
+          showToast.success(SuccessMessages.ANALYSIS_SUCCESS);
+        } else {
+          throw new Error('Résultat d\'analyse manquant');
+        }
+      }
     } catch (err) {
-      console.error('Analysis failed:', err);
+      console.error('[DocumentViewer] Analysis failed:', err);
       const errorMessage = extractErrorMessage(err);
       showToast.error(errorMessage);
     } finally {
       setAnalyzing(false);
+      setAnalysisProgress('');
     }
   };
 
   const handleDownload = async () => {
     if (!currentDoc) return;
     try {
-      const blob = await documentsApi.download(parseInt(id!));
+      const blob = await mayanService.downloadDocument(parseInt(id!));
       const url = window.URL.createObjectURL(blob);
       const a = window.document.createElement('a');
       a.href = url;
@@ -233,7 +284,7 @@ const DocumentViewer = () => {
                 {analyzing ? (
                   <>
                     <Loader2 size={18} className="spin" />
-                    Analyse en cours...
+                    {analysisProgress || 'Analyse en cours...'}
                   </>
                 ) : (
                   <>

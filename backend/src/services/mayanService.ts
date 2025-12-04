@@ -313,6 +313,26 @@ class MayanService {
     }
   }
 
+  // Get document file timestamp (for cache invalidation)
+  async getDocumentFileTimestamp(documentId: number): Promise<string | null> {
+    try {
+      // Get document versions
+      const versions = await this.getDocumentVersions(documentId);
+      if (versions.length === 0) {
+        return null;
+      }
+
+      // Get the latest/active version
+      const latestVersion = versions.find((v) => v.active) || versions[versions.length - 1];
+
+      // Return the timestamp of the latest version
+      return latestVersion.timestamp;
+    } catch (error) {
+      console.error(`Error fetching document file timestamp for ${documentId}:`, error);
+      return null;
+    }
+  }
+
   // Get document OCR content (for AI analysis)
   async getDocumentOCRContent(documentId: number): Promise<string> {
     try {

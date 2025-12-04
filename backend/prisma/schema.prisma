@@ -60,9 +60,36 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+// AnalysisJob model - Pour l'analyse IA asynchrone
+model AnalysisJob {
+  id                String    @id @default(uuid())
+  documentId        Int
+  documentTimestamp String?   // Timestamp du fichier Mayan (file_latest.timestamp) pour détecter modifications
+  status            JobStatus @default(PENDING)
+  result            Json?     // Stocke { summary, keywords }
+  error             String?
+  createdBy         String    // User ID
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  completedAt       DateTime?
+
+  @@map("analysis_jobs")
+  @@index([createdBy])
+  @@index([status])
+  @@index([documentId])
+}
+
 // Enum for user roles
 enum Role {
   USER
   ADMIN
   CONSULTANT
+}
+
+// Enum for job status
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }

@@ -1,7 +1,8 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, KeyRound } from 'lucide-react';
 import authService from '../services/authService';
+import keycloakService from '../services/keycloakService';
 import { useAuthStore } from '../store/authStore';
 import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
@@ -35,6 +36,15 @@ const Login = () => {
       console.error('Login error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSSOLogin = async () => {
+    try {
+      await keycloakService.login();
+    } catch (err) {
+      showToast.error('Échec de la connexion SSO. Veuillez réessayer.');
+      console.error('SSO login error:', err);
     }
   };
 
@@ -105,6 +115,19 @@ const Login = () => {
             </Link>
           </div>
         </form>
+
+        <div className="login-divider">
+          <span>OU</span>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-sso"
+          onClick={handleSSOLogin}
+        >
+          <KeyRound size={18} />
+          Se connecter avec SSO
+        </button>
       </div>
     </div>
   );

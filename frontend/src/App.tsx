@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import SetPassword from './pages/SetPassword'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import OIDCCallback from './pages/OIDCCallback'
 import Documents from './pages/Documents'
 import DocumentViewer from './pages/DocumentViewer'
 import Admin from './pages/Admin'
@@ -50,6 +51,7 @@ function App() {
         <Route path="/set-password" element={<SetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/callback" element={<OIDCCallback />} />
 
         {/* Protected routes */}
         <Route

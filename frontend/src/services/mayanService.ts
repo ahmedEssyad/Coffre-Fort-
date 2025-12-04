@@ -90,11 +90,12 @@ class MayanService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('document_type_id', documentTypeId.toString());
+    formData.append('label', description || file.name);
     if (description) {
       formData.append('description', description);
     }
 
-    const response = await axios.post('/documents/', formData, {
+    const response = await axios.post('/documents/upload/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -106,29 +107,21 @@ class MayanService {
   async downloadDocument(id: number): Promise<Blob> {
     const axios = await this.getAxios();
 
-    // Get the latest version
-    const versionsResponse = await axios.get(`/documents/${id}/versions/`);
-    const latestVersion = versionsResponse.data.results[0];
+    // Get document to find file_latest
+    const doc = await axios.get(`/documents/${id}/`);
 
-    if (!latestVersion) {
-      throw new Error('No versions found for document');
+    if (!doc.data.file_latest?.id) {
+      throw new Error('No file found for this document');
     }
 
-    // Get the first page of the latest version
-    const pagesResponse = await axios.get(`/document_versions/${latestVersion.id}/pages/`);
-    const firstPage = pagesResponse.data.results[0];
-
-    if (!firstPage) {
-      throw new Error('No pages found for document version');
-    }
-
-    // Download the page image
-    const downloadResponse = await axios.get(
-      `/document_version_pages/${firstPage.id}/image/`,
+    // Download using file ID
+    const fileId = doc.data.file_latest.id;
+    const response = await axios.get(
+      `/documents/${id}/files/${fileId}/download/`,
       { responseType: 'blob' }
     );
 
-    return downloadResponse.data;
+    return response.data;
   }
 
   // Delete document
@@ -153,33 +146,21 @@ class MayanService {
     try {
       const axios = await this.getAxios();
 
-      // Get document versions
-      const versionsResponse = await axios.get(`/documents/${id}/versions/`);
-      const latestVersion = versionsResponse.data.results[0];
-
-      if (!latestVersion) {
-        return { hasOCR: false };
-      }
-
-      // Get version pages
-      const pagesResponse = await axios.get(`/document_versions/${latestVersion.id}/pages/`);
-      const pages = pagesResponse.data.results;
-
-      if (!pages || pages.length === 0) {
-        return { hasOCR: false };
-      }
-
-      // Check if first page has OCR content
-      const firstPage = pages[0];
+      // Use direct OCR endpoint if available
       try {
-        const ocrResponse = await axios.get(`/document_version_pages/${firstPage.id}/ocr_content/`);
-        const content = ocrResponse.data.content || '';
+        const ocrResponse = await axios.get(`/documents/${id}/ocr/`);
+        const content = ocrResponse.data.results?.map((r: any) => r.content).join('\n') || '';
         return {
           hasOCR: content.length > 0,
           content,
         };
-      } catch (error) {
-        return { hasOCR: false };
+      } catch {
+        // Fallback: check if document has version_active
+        const doc = await axios.get(`/documents/${id}/`);
+        return {
+          hasOCR: !!doc.data.version_active,
+          content: undefined,
+        };
       }
     } catch (error) {
       console.error('Error checking OCR status:', error);

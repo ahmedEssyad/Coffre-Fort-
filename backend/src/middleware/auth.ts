@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import authService from '../services/authService';
 import accessService from '../services/accessService';
+import { verifyKeycloakToken, extractRole, KeycloakToken } from '../config/keycloak';
 
 // Extend Express Request type to include user and file
 export interface AuthRequest extends Request {
@@ -8,11 +9,13 @@ export interface AuthRequest extends Request {
     userId: string;
     email: string;
     role: string;
+    firstName?: string;
+    lastName?: string;
   };
   file?: Express.Multer.File;
 }
 
-// Middleware to verify JWT token
+// Middleware to verify JWT token (Keycloak ou JWT local)
 export const authenticate = async (
   req: AuthRequest,
   res: Response,
@@ -24,24 +27,48 @@ export const authenticate = async (
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'No token provided',
+        success: false,
+        error: 'Non autorisé. Token manquant.',
+        statusCode: 401,
       });
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // Verify token
-    const decoded = authService.verifyToken(token);
+    try {
+      // Essayer d'abord de vérifier avec Keycloak
+      const keycloakToken: KeycloakToken = await verifyKeycloakToken(token);
 
-    // Attach user info to request
-    req.user = decoded;
+      // Extraire les informations utilisateur du token Keycloak
+      req.user = {
+        userId: keycloakToken.sub,
+        email: keycloakToken.email,
+        role: extractRole(keycloakToken.realm_access?.roles || []),
+        firstName: keycloakToken.given_name,
+        lastName: keycloakToken.family_name,
+      };
 
-    next();
+      return next();
+    } catch (keycloakError) {
+      // Si Keycloak échoue, essayer le JWT local (fallback pour compatibilité)
+      try {
+        const decoded = authService.verifyToken(token);
+        req.user = decoded;
+        return next();
+      } catch (localError) {
+        // Les deux méthodes ont échoué
+        return res.status(401).json({
+          success: false,
+          error: 'Token invalide ou expiré.',
+          statusCode: 401,
+        });
+      }
+    }
   } catch (error) {
     return res.status(401).json({
-      error: 'Unauthorized',
-      message: error instanceof Error ? error.message : 'Invalid token',
+      success: false,
+      error: 'Erreur de vérification du token.',
+      statusCode: 401,
     });
   }
 };
