@@ -56,16 +56,6 @@ export interface DocumentAnalysis {
   keywords: string[];
 }
 
-export interface AnalysisJob {
-  id: string;
-  documentId: number;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
-  result?: DocumentAnalysis;
-  error?: string;
-  createdAt: string;
-  completedAt?: string;
-}
-
 // Authentication API
 export const authApi = {
   // Login
@@ -171,8 +161,8 @@ export const documentsApi = {
 
 // AI API
 export const aiApi = {
-  // Analyze document with AI (async - returns jobId)
-  async analyze(documentId: number): Promise<{ success: boolean; message: string; jobId: string; documentId: number }> {
+  // Analyze document with AI (direct - returns analysis result)
+  async analyze(documentId: number): Promise<DocumentAnalysis> {
     const response = await axios.post('/ai/analyze', { documentId });
     return response.data;
   },
@@ -181,55 +171,6 @@ export const aiApi = {
   async health(): Promise<{ status: string; service: string; model: string }> {
     const response = await axios.get('/ai/health');
     return response.data;
-  },
-};
-
-// Jobs API
-export const jobsApi = {
-  // Get job status
-  async getJobStatus(jobId: string): Promise<{ success: boolean; data: AnalysisJob }> {
-    const response = await axios.get(`/jobs/${jobId}`);
-    return response.data;
-  },
-
-  // Get all user jobs
-  async getUserJobs(limit: number = 20): Promise<{ success: boolean; data: AnalysisJob[] }> {
-    const response = await axios.get('/jobs', {
-      params: { limit },
-    });
-    return response.data;
-  },
-
-  // Poll job until completed (helper function)
-  async pollJobUntilComplete(
-    jobId: string,
-    onProgress?: (job: AnalysisJob) => void,
-    maxAttempts: number = 60,
-    intervalMs: number = 3000
-  ): Promise<AnalysisJob> {
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const response = await this.getJobStatus(jobId);
-      const job = response.data;
-
-      // Call progress callback
-      if (onProgress) {
-        onProgress(job);
-      }
-
-      // Check if job is finished
-      if (job.status === 'COMPLETED') {
-        return job;
-      }
-
-      if (job.status === 'FAILED') {
-        throw new Error(job.error || 'Analyse échouée');
-      }
-
-      // Wait before next poll
-      await new Promise((resolve) => setTimeout(resolve, intervalMs));
-    }
-
-    throw new Error('Délai d\'attente dépassé pour l\'analyse');
   },
 };
 

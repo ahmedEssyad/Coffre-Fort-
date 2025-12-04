@@ -3,7 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import ollamaService from '../services/ollamaService';
 import mayanService from '../services/mayanService';
 import { body, validationResult } from 'express-validator';
-import { jobService } from '../services/jobService';
+import { aiService } from '../services/aiService';
 
 class AIController {
   // Validation rules
@@ -11,7 +11,7 @@ class AIController {
     body('documentId').isNumeric().withMessage('Document ID is required'),
   ];
 
-  // Analyze document (generate summary + keywords) - ASYNC MODE with cache
+  // Analyze document (generate summary + keywords) - DIRECT MODE
   async analyze(req: AuthRequest, res: Response) {
     try {
       // Validate request
@@ -30,42 +30,25 @@ class AIController {
         });
       }
 
-      // Vérifier si une analyse valide existe en cache
-      const cachedAnalysis = await jobService.getLatestValidAnalysis(parseInt(documentId));
+      console.log(`[AIController] Starting analysis for document ${documentId}`);
 
-      if (cachedAnalysis && cachedAnalysis.result) {
-        console.log(`[AIController] Résultat en cache retourné pour document ${documentId}`);
+      // Analyser directement le document
+      const analysis = await aiService.analyzeDocument(parseInt(documentId));
 
-        // Retourner immédiatement le résultat en cache (HTTP 200)
-        const result = cachedAnalysis.result as { summary: string; keywords: string[] };
-        return res.status(200).json({
-          success: true,
-          cached: true,
-          message: 'Analyse récupérée du cache',
-          documentId: parseInt(documentId),
-          summary: result.summary,
-          keywords: result.keywords,
-        });
-      }
+      console.log(`[AIController] Analysis completed for document ${documentId}`);
 
-      // Pas de cache valide → Créer un job d'analyse asynchrone
-      const jobId = await jobService.createJob(parseInt(documentId), userId);
-
-      console.log(`[AIController] Job d'analyse créé: ${jobId} pour document ${documentId}`);
-
-      // Retourner le jobId pour polling (HTTP 202)
-      res.status(202).json({
+      // Retourner le résultat immédiatement
+      res.status(200).json({
         success: true,
-        cached: false,
-        message: 'Analyse en cours...',
-        jobId,
         documentId: parseInt(documentId),
+        summary: analysis.summary,
+        keywords: analysis.keywords,
       });
     } catch (error) {
-      console.error('[AIController] Error creating analysis job:', error);
+      console.error('[AIController] Error analyzing document:', error);
       res.status(500).json({
         success: false,
-        error: 'Échec de la création du job d\'analyse',
+        error: 'Échec de l\'analyse du document',
         message: error instanceof Error ? error.message : 'Unknown error',
       });
     }

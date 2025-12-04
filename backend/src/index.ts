@@ -8,7 +8,6 @@ import accessRoutes from './routes/accessRoutes';
 import documentRoutes from './routes/documentRoutes';
 import aiRoutes from './routes/aiRoutes';
 import adminRoutes from './routes/adminRoutes';
-import jobRoutes from './routes/jobRoutes';
 import config from './config/env';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
@@ -45,7 +44,6 @@ app.use('/api/access', accessRoutes);
 // app.use('/api/documents', documentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/jobs', jobRoutes);
 
 // API info endpoint
 app.get('/api', (req: Request, res: Response) => {
@@ -57,8 +55,7 @@ app.get('/api', (req: Request, res: Response) => {
       auth: '/api/auth/*',
       access: '/api/access/*',
       ai: '/api/ai/*',
-      admin: '/api/admin/*',
-      jobs: '/api/jobs/*'
+      admin: '/api/admin/*'
     },
     note: 'Documents are accessed directly via Mayan API. Use GET /api/auth/mayan-config to get credentials.'
   });

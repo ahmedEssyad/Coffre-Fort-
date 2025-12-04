@@ -7,7 +7,7 @@ import {
   Loader2
 } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
-import { aiApi, jobsApi, Document, DocumentAnalysis, AnalysisJob } from '../services/api';
+import { aiApi, Document, DocumentAnalysis } from '../services/api';
 import { mayanService } from '../services/mayanService';
 import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
@@ -98,52 +98,17 @@ const DocumentViewer = () => {
   const handleAnalyze = async () => {
     try {
       setAnalyzing(true);
-      setAnalysisProgress('Vérification du cache...');
+      setAnalysisProgress('Analyse en cours avec IA...');
 
-      // Start analysis request (checks cache first)
-      const response = await aiApi.analyze(parseInt(id!));
+      console.log(`[DocumentViewer] Starting analysis for document ${id}`);
 
-      // Check if result is from cache (HTTP 200) or new job (HTTP 202)
-      if ('summary' in response && 'keywords' in response) {
-        // Cached result - display immediately
-        console.log(`[DocumentViewer] Cached result received for document ${id}`);
-        const cached = response as { summary: string; keywords: string[] };
-        setAnalysis({
-          documentId: parseInt(id!),
-          summary: cached.summary,
-          keywords: cached.keywords,
-        });
-        showToast.success('Analyse récupérée du cache');
-      } else if ('jobId' in response) {
-        // New job - poll for completion
-        const jobId = response.jobId;
-        console.log(`[DocumentViewer] Analysis job started: ${jobId}`);
-        setAnalysisProgress('Analyse en cours...');
+      // Analyze document directly (synchronous)
+      const result = await aiApi.analyze(parseInt(id!));
 
-        // Poll job status with progress updates
-        const completedJob = await jobsApi.pollJobUntilComplete(
-          jobId,
-          (job: AnalysisJob) => {
-            // Update progress message based on job status
-            if (job.status === 'PENDING') {
-              setAnalysisProgress('En attente...');
-            } else if (job.status === 'PROCESSING') {
-              setAnalysisProgress('Analyse en cours avec IA...');
-            }
-            console.log(`[DocumentViewer] Job status: ${job.status}`);
-          },
-          60, // 60 attempts max
-          3000 // 3 seconds interval
-        );
+      console.log(`[DocumentViewer] Analysis completed for document ${id}`);
 
-        // Job completed successfully
-        if (completedJob.result) {
-          setAnalysis(completedJob.result);
-          showToast.success(SuccessMessages.ANALYSIS_SUCCESS);
-        } else {
-          throw new Error('Résultat d\'analyse manquant');
-        }
-      }
+      setAnalysis(result);
+      showToast.success(SuccessMessages.ANALYSIS_SUCCESS);
     } catch (err) {
       console.error('[DocumentViewer] Analysis failed:', err);
       const errorMessage = extractErrorMessage(err);
