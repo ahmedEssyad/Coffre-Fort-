@@ -9,6 +9,7 @@ import documentRoutes from './routes/documentRoutes';
 import aiRoutes from './routes/aiRoutes';
 import adminRoutes from './routes/adminRoutes';
 import config from './config/env';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Load environment variables
 dotenv.config();
@@ -58,22 +59,11 @@ app.get('/api', (req: Request, res: Response) => {
   });
 });
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    error: 'Route not found',
-    path: req.path
-  });
-});
+// 404 handler - doit être après toutes les routes
+app.use(notFoundHandler);
 
-// Error handler
-app.use((err: Error, req: Request, res: Response, next: any) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
+// Error handler global - doit être en dernier
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {

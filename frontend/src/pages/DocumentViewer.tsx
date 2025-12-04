@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
 import { documentsApi, aiApi, Document, DocumentAnalysis } from '../services/api';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './DocumentViewer.css';
 
@@ -78,7 +79,9 @@ const DocumentViewer = () => {
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
     } catch (err) {
-      setError('Échec du chargement du document');
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -90,9 +93,11 @@ const DocumentViewer = () => {
       setAnalyzing(true);
       const result = await aiApi.analyze(parseInt(id!));
       setAnalysis(result);
+      showToast.success(SuccessMessages.ANALYSIS_SUCCESS);
     } catch (err) {
       console.error('Analysis failed:', err);
-      alert('Échec de l\'analyse du document. Assurez-vous que le traitement OCR est terminé.');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     } finally {
       setAnalyzing(false);
     }
@@ -110,9 +115,11 @@ const DocumentViewer = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       window.document.body.removeChild(a);
+      showToast.success(SuccessMessages.DOWNLOAD_SUCCESS);
     } catch (err) {
       console.error('Download failed:', err);
-      alert('Échec du téléchargement du document');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     }
   };
 

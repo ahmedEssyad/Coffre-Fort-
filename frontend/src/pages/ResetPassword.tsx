@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { authApi } from '../services/api';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './ResetPassword.css';
 
@@ -27,22 +28,30 @@ const ResetPassword = () => {
     setError('');
 
     if (!token) {
-      setError('Jeton de réinitialisation invalide');
+      const errorMsg = 'Jeton de réinitialisation invalide';
+      setError(errorMsg);
+      showToast.error(errorMsg);
       return;
     }
 
     if (!password) {
-      setError('Veuillez entrer un nouveau mot de passe');
+      const errorMsg = 'Veuillez entrer un nouveau mot de passe';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères');
+      const errorMsg = 'Le mot de passe doit contenir au moins 8 caractères';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      const errorMsg = 'Les mots de passe ne correspondent pas';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
@@ -51,6 +60,7 @@ const ResetPassword = () => {
     try {
       await authApi.setPassword({ token, password });
       setSuccess(true);
+      showToast.success(SuccessMessages.PASSWORD_CHANGED);
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
@@ -58,11 +68,9 @@ const ResetPassword = () => {
       }, 2000);
     } catch (err: any) {
       console.error('Reset password error:', err);
-      if (err.response?.status === 400) {
-        setError('Jeton de réinitialisation invalide ou expiré. Veuillez demander un nouveau lien de réinitialisation.');
-      } else {
-        setError(err.response?.data?.message || 'Échec de la réinitialisation du mot de passe. Veuillez réessayer.');
-      }
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }

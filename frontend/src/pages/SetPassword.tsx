@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import authService from '../services/authService';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './SetPassword.css';
 
@@ -33,12 +34,16 @@ function SetPassword() {
 
     // Validation
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères');
+      const errorMsg = 'Le mot de passe doit contenir au moins 6 caractères';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      const errorMsg = 'Les mots de passe ne correspondent pas';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
@@ -47,13 +52,16 @@ function SetPassword() {
     try {
       await authService.setPassword(token, password);
       setSuccess(true);
+      showToast.success(SuccessMessages.PASSWORD_CHANGED);
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur s\'est produite');
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import authService from '../services/authService';
 import { useAuthStore } from '../store/authStore';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './Login.css';
 
@@ -18,6 +19,7 @@ const Login = () => {
     clearError();
 
     if (!email || !password) {
+      showToast.warning('Veuillez remplir tous les champs.');
       return;
     }
 
@@ -25,9 +27,11 @@ const Login = () => {
 
     try {
       await authService.login({ email, password });
+      showToast.success(SuccessMessages.LOGIN_SUCCESS);
       navigate('/dashboard');
     } catch (err) {
-      // Error is handled by authService and stored in authStore
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
       console.error('Login error:', err);
     } finally {
       setLoading(false);

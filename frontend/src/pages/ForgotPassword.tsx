@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '../services/api';
+import { showToast, extractErrorMessage } from '../utils/toast';
 import '../theme.css';
 import './ForgotPassword.css';
 
@@ -16,7 +17,9 @@ const ForgotPassword = () => {
     setError('');
 
     if (!email) {
-      setError('Veuillez entrer votre adresse email');
+      const errorMsg = 'Veuillez entrer votre adresse email';
+      setError(errorMsg);
+      showToast.warning(errorMsg);
       return;
     }
 
@@ -25,9 +28,12 @@ const ForgotPassword = () => {
     try {
       await authApi.forgotPassword(email);
       setSuccess(true);
+      showToast.success('Email de réinitialisation envoyé avec succès');
     } catch (err: any) {
       console.error('Forgot password error:', err);
-      setError(err.response?.data?.message || 'Échec de l\'envoi de l\'email de réinitialisation. Veuillez réessayer.');
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }

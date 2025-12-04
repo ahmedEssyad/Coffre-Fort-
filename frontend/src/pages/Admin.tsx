@@ -13,6 +13,7 @@ import {
 import Layout from '../components/Layout/Layout';
 import { adminApi, User, accessApi, TemporaryAccess } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './Admin.css';
 
@@ -59,11 +60,13 @@ const Admin = () => {
         setAccesses([]); // Set empty array if fails
       }
     } catch (err: any) {
+      const errorMessage = extractErrorMessage(err);
       if (err.response?.status === 403) {
         setError('Accès refusé : Privilèges administrateur requis');
       } else {
-        setError('Échec du chargement des utilisateurs');
+        setError(errorMessage);
       }
+      showToast.error(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -79,7 +82,7 @@ const Admin = () => {
   const handleDeleteUser = async (userToDelete: User) => {
     // Prevent deleting yourself
     if (user && userToDelete.id === user.id) {
-      alert('Vous ne pouvez pas supprimer votre propre compte');
+      showToast.warning('Vous ne pouvez pas supprimer votre propre compte');
       return;
     }
 
@@ -91,17 +94,13 @@ const Admin = () => {
 
     try {
       await adminApi.deleteUser(userToDelete.id);
+      showToast.success(SuccessMessages.USER_DELETED);
       // Reload users list
       await loadData();
     } catch (err: any) {
       console.error('Delete user failed:', err);
-      if (err.response?.status === 403) {
-        alert('Accès refusé : Vous n\'avez pas la permission de supprimer des utilisateurs');
-      } else if (err.response?.status === 400) {
-        alert(err.response?.data?.message || 'Impossible de supprimer cet utilisateur');
-      } else {
-        alert('Échec de la suppression de l\'utilisateur. Veuillez réessayer.');
-      }
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     }
   };
 
@@ -346,7 +345,7 @@ const InviteUserModal = ({ onClose, onInviteSuccess }: InviteUserModalProps) => 
 
   const handleInvite = async () => {
     if (!email) {
-      alert('Veuillez entrer une adresse email');
+      showToast.warning('Veuillez entrer une adresse email');
       return;
     }
 
@@ -354,12 +353,14 @@ const InviteUserModal = ({ onClose, onInviteSuccess }: InviteUserModalProps) => 
       setInviting(true);
       await adminApi.inviteUser(email, firstName || undefined, lastName || undefined, role);
       setSuccess(true);
+      showToast.success(SuccessMessages.INVITATION_SENT);
       setTimeout(() => {
         onInviteSuccess();
       }, 2000);
     } catch (err) {
       console.error('Invite failed:', err);
-      alert('Échec de l\'invitation de l\'utilisateur');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     } finally {
       setInviting(false);
     }
@@ -490,22 +491,24 @@ const AccessManagementModal = ({
 
   const handleCreateAccess = async () => {
     if (!startDate || !endDate) {
-      alert('Veuillez sélectionner les dates de début et de fin');
+      showToast.warning('Veuillez sélectionner les dates de début et de fin');
       return;
     }
 
     if (new Date(endDate) <= new Date(startDate)) {
-      alert('La date de fin doit être après la date de début');
+      showToast.warning('La date de fin doit être après la date de début');
       return;
     }
 
     try {
       setSaving(true);
       await accessApi.createAccess(user.id, startDate, endDate);
+      showToast.success(SuccessMessages.ACCESS_CREATED);
       onSuccess();
     } catch (err) {
       console.error('Failed to create access:', err);
-      alert('Échec de la création de l\'accès');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -518,10 +521,12 @@ const AccessManagementModal = ({
 
     try {
       await accessApi.deleteAccess(accessId);
+      showToast.success(SuccessMessages.ACCESS_DELETED);
       onSuccess();
     } catch (err) {
       console.error('Failed to delete access:', err);
-      alert('Échec de la suppression de l\'accès');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     }
   };
 
@@ -672,7 +677,7 @@ const ChangeRoleModal = ({ user, currentUser, onClose, onSuccess }: ChangeRoleMo
   const handleChangeRole = async () => {
     // Prevent changing own role from ADMIN
     if (currentUser && user.id === currentUser.id && user.role === 'ADMIN' && newRole !== 'ADMIN') {
-      alert('Vous ne pouvez pas vous retirer le rôle ADMIN');
+      showToast.warning('Vous ne pouvez pas vous retirer le rôle ADMIN');
       return;
     }
 
@@ -686,16 +691,14 @@ const ChangeRoleModal = ({ user, currentUser, onClose, onSuccess }: ChangeRoleMo
       setSaving(true);
       await adminApi.updateUserRole(user.id, newRole);
       setSuccess(true);
+      showToast.success(SuccessMessages.ROLE_UPDATED);
       setTimeout(() => {
         onSuccess();
       }, 1500);
     } catch (err: any) {
       console.error('Role change failed:', err);
-      if (err.response?.status === 400) {
-        alert(err.response?.data?.message || 'Impossible de changer le rôle');
-      } else {
-        alert('Échec du changement de rôle. Veuillez réessayer.');
-      }
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
       setSaving(false);
     }
   };

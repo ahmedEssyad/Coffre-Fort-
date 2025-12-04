@@ -15,6 +15,7 @@ import { Document, DocumentType } from '../services/api';
 import { mayanService } from '../services/mayanService';
 import { useAuthStore } from '../store/authStore';
 import authService from '../services/authService';
+import { showToast, extractErrorMessage, SuccessMessages } from '../utils/toast';
 import '../theme.css';
 import './Documents.css';
 
@@ -46,7 +47,9 @@ const Documents = () => {
       const response = await mayanService.listDocuments();
       setDocuments(response.results);
     } catch (err) {
-      setError('Échec du chargement des documents');
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -73,9 +76,11 @@ const Documents = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      showToast.success(SuccessMessages.DOWNLOAD_SUCCESS);
     } catch (err) {
       console.error('Download failed:', err);
-      alert('Échec du téléchargement du document');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     }
   };
 
@@ -85,10 +90,12 @@ const Documents = () => {
     }
     try {
       await mayanService.deleteDocument(id);
+      showToast.success(SuccessMessages.DELETE_SUCCESS);
       loadDocuments();
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Échec de la suppression du document');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
     }
   };
 
@@ -274,7 +281,7 @@ const DocumentUploadModal = ({
 
   const handleUpload = async () => {
     if (!file || !documentTypeId) {
-      alert('Veuillez sélectionner un fichier et un type de document');
+      showToast.warning('Veuillez sélectionner un fichier et un type de document');
       return;
     }
 
@@ -287,7 +294,8 @@ const DocumentUploadModal = ({
       pollOCRStatus(result.id);
     } catch (err) {
       console.error('Upload failed:', err);
-      alert('Échec du téléversement du document');
+      const errorMessage = extractErrorMessage(err);
+      showToast.error(errorMessage);
       setUploading(false);
     }
   };
