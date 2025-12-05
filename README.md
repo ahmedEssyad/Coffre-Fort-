@@ -75,6 +75,10 @@ Notre système s'appuie sur **Mayan EDMS** (Open Source) et l'enrichit considér
     └──────────────┘              └──────────────┘
 ```
 
+### 📐 Architecture Détaillée
+
+Pour consulter les schémas d'interactions détaillés entre le Client, Mayan et le service IA, voir **[ARCHITECTURE.md](./ARCHITECTURE.md)**
+
 ### Les 3 Piliers Techniques Imposés
 
 #### 1️⃣ Architecture Conteneurisée (Docker)
