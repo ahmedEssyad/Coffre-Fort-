@@ -20,6 +20,11 @@ const OIDCCallback = () => {
       const user = await keycloakService.handleCallback();
 
       if (user) {
+        // Sauvegarder le token pour les autres services (mayanService, axios)
+        if (user.access_token) {
+          localStorage.setItem('auth_token', user.access_token);
+        }
+
         // Extraire les infos utilisateur du token
         const userInfo = await keycloakService.getUserInfo();
 
