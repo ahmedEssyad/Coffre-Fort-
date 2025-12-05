@@ -143,7 +143,7 @@ services:
       args:
         VITE_BACKEND_API_URL: http://${HOST_IP:-localhost}:3001/api
         VITE_MAYAN_API_URL: http://${HOST_IP:-localhost}:8000
-        VITE_KEYCLOAK_URL: http://${HOST_IP:-localhost}:8080
+        VITE_KEYCLOAK_URL: http://localhost:8080
     container_name: mayanconnect-frontend
     ports:
       - "80:80"
