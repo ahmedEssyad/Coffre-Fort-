@@ -1,8 +1,8 @@
 # 🚀 Coffre-Fort
 
-**Architecture documentaire sécurisée, conteneurisée et IA**
+**Le Coffre-Fort Documentaire Sûr et Intelligent (Module d'Extension)**
 
-Projet pour la **Nuit de l'Informatique 2025** - Défi Coffre-Fort
+Projet pour la **Nuit de l'Informatique 2025** - Défi ESA-TECH & NIRD
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![AI](https://img.shields.io/badge/AI-Ollama%20%2B%20Llama%203.2-green.svg)](https://ollama.ai/)
@@ -12,15 +12,22 @@ Projet pour la **Nuit de l'Informatique 2025** - Défi Coffre-Fort
 
 ## 📋 Description
 
-Coffre-Fort est une architecture documentaire professionnelle basée sur **Mayan EDMS** (Open Source), enrichie par une **intelligence artificielle locale** pour l'analyse de contenu. Le système offre une solution complète de gestion documentaire avec :
+Coffre-Fort est une solution complète de gestion documentaire sécurisée, développée pour le défi **ESA-TECH** (Coffre-Fort Documentaire) dans le cadre du challenge national **NIRD** (Numérique Inclusif, Responsable et Durable) de la Nuit de l'Informatique 2025.
 
-- 🐳 **Architecture 100% conteneurisée** (Docker Compose)
-- 🔐 **Séparation claire Auth vs Data** (Backend custom + Mayan EDMS)
-- 🤖 **IA locale** pour résumés automatiques et extraction de mots-clés
+Notre système s'appuie sur **Mayan EDMS** (Open Source) et l'enrichit considérablement avec :
+
+### ✨ Fonctionnalités Principales
+
+- 🐳 **Architecture 100% conteneurisée** (Docker Compose - 9 services orchestrés)
+- 🔐 **Système d'authentification avancé** (JWT + 3 rôles : USER, CONSULTANT, ADMIN)
+- 🤖 **IA locale** (Llama 3.2) pour résumés automatiques et extraction de mots-clés
 - 🔒 **Privacy-first** : toutes les données restent sur votre infrastructure
-- ⏰ **Gestion des accès temporaires** par fenêtres horaires
-- 🔍 **Recherche OCR** sur tous les documents
-- 🎨 **Interface moderne** en français
+- ⏰ **Gestion des accès temporaires** par fenêtres horaires (contrôle granulaire)
+- 🔍 **Recherche OCR** automatique sur tous les documents
+- 📧 **Système d'emails professionnel** (invitations, notifications, reset password)
+- 👥 **Gestion complète des utilisateurs** (invitations par email, changements de rôles)
+- 🎨 **Interface moderne et intuitive** 100% en français
+- 🔑 **SSO/OIDC avec Keycloak** (bonus - authentification unique)
 
 ---
 
@@ -129,8 +136,8 @@ Coffre-Fort est une architecture documentaire professionnelle basée sur **Mayan
 
 ```bash
 # 1. Cloner le repository
-git clone https://github.com/votre-repo/nuitinfo.git
-cd nuitinfo
+git clone https://github.com/ahmedEssyad/Coffre-Fort-.git
+cd Coffre-Fort-
 
 # 2. Copier le fichier d'environnement
 cp .env.example .env
@@ -221,73 +228,109 @@ curl -X POST http://localhost:3000/api/auth/register \
 
 ## 🎯 Fonctionnalités Complètes
 
-### ✅ Missions Détaillées Réalisées
+### ✅ Exigences du Défi (100% Complétées)
 
-#### 1. Infrastructure & Déploiement ✅
-- [x] `docker-compose.yml` orchestrant tous les services
-- [x] Service d'IA local (Ollama) intégré
+#### 1️⃣ Infrastructure & Déploiement ✅
+- [x] **Architecture 100% conteneurisée** via `docker-compose.yml`
+- [x] **9 services orchestrés** (Frontend, Backend, Mayan, Ollama, Keycloak, 3x PostgreSQL, Redis)
+- [x] Service d'IA local (Ollama + Llama 3.2 3B) intégré
 - [x] Réseau privé Docker pour communication inter-conteneurs
-- [x] Volumes persistants pour les données
+- [x] Volumes persistants pour toutes les données
 - [x] Health checks sur tous les services critiques
+- [x] **Déploiement en une seule commande** : `docker-compose up -d`
 
-#### 2. Développement Client (Web) ✅
-- [x] Interface moderne React + TypeScript
-- [x] Navigation dans les documents via API Mayan
-- [x] **Intégration IA** : Bouton "Analyser" → Affichage du résumé + mots-clés
-- [x] Tableau de bord des accès temporaires (pour USER)
-- [x] Dashboard admin avec gestion des utilisateurs
-- [x] Pages : Dashboard, Documents, DocumentViewer, Admin, Login
-- [x] **100% en français**
+#### 2️⃣ Client Web (Interface Utilisateur) ✅
+- [x] **Interface moderne React + TypeScript**
+- [x] Navigation fluide dans les documents via API Mayan
+- [x] **Intégration IA** : Bouton "Analyser" → Résumé + Mots-clés en temps réel
+- [x] Tableau de bord personnalisé selon le rôle utilisateur
+- [x] Dashboard admin complet avec gestion des utilisateurs
+- [x] Pages : Dashboard, Documents, DocumentViewer, Admin, Login, SetPassword
+- [x] **100% en français** (interface, emails, documentation)
+- [x] Design moderne inspiré de Google Drive
 
-#### 3. Logique d'Accès Temporaire ✅
-- [x] Admin peut définir des fenêtres de temps (ex: 01/12 08:00 → 03/12 18:00)
-- [x] Backend vérifie et autorise/bloque l'accès selon la fenêtre active
-- [x] Middleware `checkTemporaryAccess` sur les routes protégées
-- [x] 3 rôles distincts :
-  - **USER** : Accès uniquement pendant les fenêtres définies
-  - **CONSULTANT** : Accès permanent aux documents (bypass fenêtres)
-  - **ADMIN** : Contrôle total du système
-- [x] Interface de gestion des accès (créer, modifier, supprimer)
-- [x] Badges visuels : Actif, Programmé, Expiré, Aucun Accès
+#### 3️⃣ Logique d'Accès Temporaire (Cœur du Défi) ✅
+- [x] **Admin définit des fenêtres temporelles** (ex: 01/12 08:00 → 03/12 18:00)
+- [x] Backend vérifie et autorise/bloque l'accès en temps réel
+- [x] Middleware `checkTemporaryAccess` sur toutes les routes sensibles
+- [x] **3 rôles distincts avec permissions granulaires** :
+  - **USER** : Accès uniquement pendant les fenêtres définies par l'admin
+  - **CONSULTANT** : Accès permanent aux documents (bypass des fenêtres)
+  - **ADMIN** : Contrôle total (utilisateurs, accès, documents)
+- [x] Interface CRUD complète pour gérer les accès temporaires
+- [x] **Badges visuels en temps réel** : Actif (vert), Programmé (bleu), Expiré (rouge), Aucun Accès (gris)
+- [x] Notifications visuelles des changements de statut
 
-#### 4. Système d'Authentification ✅
-- [x] JWT (JSON Web Tokens)
-- [x] Inscription, Login, Logout
-- [x] Mots de passe hashés avec bcrypt (12 rounds)
-- [x] Tokens de réinitialisation de mot de passe
-- [x] Protection CORS
-- [x] Helmet.js pour headers de sécurité
+#### 4️⃣ Système d'Authentification Sécurisé ✅
+- [x] **JWT (JSON Web Tokens)** avec expiration configurable
+- [x] Inscription, Login, Logout robustes
+- [x] **Mots de passe hashés avec bcrypt** (12 rounds)
+- [x] Tokens de réinitialisation de mot de passe (24h expiration)
+- [x] Protection CORS stricte
+- [x] **Helmet.js** pour headers de sécurité HTTP
+- [x] Validation des entrées avec express-validator
 
-#### 5. Gestion Documentaire ✅
-- [x] Upload de documents (PDF, images, etc.)
-- [x] OCR automatique via Mayan
+#### 5️⃣ Gestion Documentaire (Mayan EDMS) ✅
+- [x] **Upload multi-format** (PDF, images, Office, etc.)
+- [x] **OCR automatique** via Tesseract intégré à Mayan
 - [x] Recherche full-text sur le contenu OCR
-- [x] Téléchargement de documents
-- [x] Suppression de documents
+- [x] Téléchargement sécurisé des documents
+- [x] Suppression avec confirmation
 - [x] Types de documents configurables
-- [x] Métadonnées (label, description, type, date)
+- [x] Métadonnées complètes (label, description, type, date, auteur)
 
-#### 6. Intelligence Artificielle ✅
-- [x] Modèle Llama 3.2 3B via Ollama
+#### 6️⃣ Intelligence Artificielle Locale ✅
+- [x] **Modèle Llama 3.2 3B** via Ollama (2.5 GB RAM)
 - [x] API `/api/ai/analyze` pour analyser un document
-- [x] Génération de résumé intelligent
-- [x] Extraction automatique de mots-clés
-- [x] Traitement 100% local (privacy-first)
-- [x] Interface visuelle pour afficher l'analyse
+- [x] **Génération de résumé intelligent** (2-3 phrases)
+- [x] **Extraction automatique de mots-clés** (5-7 termes)
+- [x] Traitement 100% local (privacy-first, aucune donnée ne sort)
+- [x] Interface visuelle élégante pour afficher l'analyse
+- [x] Temps de traitement optimisé (~30-60 secondes)
 
-#### 7. Interface Admin ✅
-- [x] Liste de tous les utilisateurs
-- [x] Invitation d'utilisateurs (avec email)
-- [x] Changement de rôle utilisateur
-- [x] Suppression d'utilisateurs (avec protections)
-- [x] Gestion des fenêtres d'accès temporaire
-- [x] Visualisation des statuts d'accès
+---
 
-### 📧 Emails Automatiques ✅
-- [x] Email de bienvenue avec lien de définition du mot de passe
-- [x] Email de réinitialisation de mot de passe
-- [x] Templates HTML professionnels en français
-- [x] Service Resend intégré
+### 🌟 Fonctionnalités Bonus (Au-delà des Exigences)
+
+#### 📧 Système d'Emails Professionnel (Resend)
+- [x] **Email de bienvenue** avec lien sécurisé de définition de mot de passe
+- [x] **Email d'invitation** pour nouveaux utilisateurs
+- [x] **Email de réinitialisation** de mot de passe oublié
+- [x] Templates HTML professionnels avec branding cohérent
+- [x] Service Resend intégré (production-ready)
+- [x] Liens sécurisés avec tokens JWT (expiration 24h)
+
+#### 👥 Gestion Avancée des Utilisateurs
+- [x] **Invitation par email** : L'admin invite, l'utilisateur reçoit un lien pour définir son mot de passe
+- [x] **Changement de rôle dynamique** : USER ↔ CONSULTANT ↔ ADMIN
+- [x] **Liste complète des utilisateurs** avec filtres et recherche
+- [x] Suppression sécurisée (protection du dernier admin)
+- [x] Visualisation du statut d'accès de chaque utilisateur
+- [x] Statistiques utilisateurs dans le dashboard
+
+#### 🔑 SSO/OIDC avec Keycloak (Authentification Unique)
+- [x] **Serveur Keycloak** intégré dans docker-compose
+- [x] Configuration automatique du realm "coffre-fort"
+- [x] Client frontend configuré pour OIDC
+- [x] Login SSO en un clic depuis la page de connexion
+- [x] Synchronisation automatique des rôles et permissions
+- [x] Tokens OAuth2 sécurisés
+
+#### 🎨 Expérience Utilisateur Premium
+- [x] **Design moderne et épuré** (inspiré Google Drive / Notion)
+- [x] Animations fluides et feedback visuel
+- [x] **Toast notifications** pour toutes les actions
+- [x] États de chargement (skeletons, spinners)
+- [x] Messages d'erreur explicites et traductions complètes
+- [x] Interface responsive (desktop, tablette, mobile)
+
+#### 🔒 Sécurité Renforcée
+- [x] **Middleware de vérification d'accès** sur chaque route sensible
+- [x] Validation stricte des permissions selon le rôle
+- [x] Protection contre les injections SQL (Prisma ORM)
+- [x] Protection XSS et CSRF
+- [x] Logs de sécurité pour audit
+- [x] Variables sensibles dans .env (jamais en dur)
 
 ---
 
@@ -916,8 +959,8 @@ docker-compose restart backend
 
 [0:30-1:00] INSTALLATION
 - Montrer le terminal
-- `git clone ...`
-- `cd nuitinfo`
+- `git clone https://github.com/ahmedEssyad/Coffre-Fort-.git`
+- `cd Coffre-Fort-`
 - `docker-compose up -d`
 - Montrer `docker-compose ps` (tous les services UP)
 
@@ -954,29 +997,68 @@ docker-compose restart backend
 
 ## 🏆 Critères d'Évaluation
 
-### Points Attendus
+### Points Attendus (Défi ESA-TECH)
 
-| Critère | Status | Points |
-|---------|--------|--------|
-| **Architecture Docker complète** | ✅ | 20/20 |
-| **Séparation Auth vs Data** | ✅ | 20/20 |
-| **IA locale fonctionnelle** | ✅ | 20/20 |
-| **Client moderne avec résumés IA** | ✅ | 15/15 |
-| **Gestion accès temporaires** | ✅ | 15/15 |
-| **Documentation complète** | ✅ | 10/10 |
-| **BONUS : SSO** | ❌ | 0/20 |
-| **Total** | - | **100/120** |
+| Critère | Status | Réalisation |
+|---------|--------|-------------|
+| **Architecture Docker complète** | ✅ | **9 services orchestrés** (Frontend, Backend, Mayan, Ollama, Keycloak, 3x PostgreSQL, Redis) |
+| **Séparation Auth vs Data** | ✅ | **Backend JWT custom** + Mayan EDMS pour documents |
+| **IA locale fonctionnelle** | ✅ | **Llama 3.2 3B via Ollama** - Résumés + Mots-clés |
+| **Client moderne avec IA** | ✅ | **React + TypeScript** - Interface complète en français |
+| **Gestion accès temporaires** | ✅ | **3 rôles + Fenêtres horaires** avec middleware de contrôle |
+| **Documentation complète** | ✅ | **README exhaustif** + Guides installation/démo |
+| **BONUS : SSO** | ✅ | **Keycloak OIDC** intégré (authentification unique) |
+| **Total** | - | **120/120** ✨ |
 
-### Points Forts
+### 🌟 Nos Points Forts
 
-- ✅ **Installation ultra-simple** : Une seule commande
-- ✅ **Interface 100% en français**
-- ✅ **3 rôles distincts** (USER, CONSULTANT, ADMIN)
-- ✅ **Emails automatiques** professionnels
-- ✅ **Privacy-first** : Aucune donnée ne sort
-- ✅ **Documentation exhaustive**
-- ✅ **Health checks** sur tous les services
-- ✅ **Architecture scalable**
+#### Exigences de Base (Obligatoires)
+- ✅ **Architecture 100% conteneurisée** : 9 services Docker orchestrés
+- ✅ **Installation ultra-simple** : Une seule commande (`docker-compose up -d`)
+- ✅ **IA locale (Llama 3.2)** : Résumés intelligents + Extraction de mots-clés
+- ✅ **Accès temporaires** : Middleware robuste + Interface de gestion complète
+- ✅ **Client moderne** : React + TypeScript avec design professionnel
+- ✅ **Documentation exhaustive** : README complet + Scripts de démo
+
+#### Fonctionnalités Avancées (Au-delà des Exigences)
+- ✅ **Système d'emails professionnel** (Resend) :
+  - Email de bienvenue avec lien sécurisé
+  - Invitation d'utilisateurs par l'admin
+  - Réinitialisation de mot de passe oublié
+  - Templates HTML modernes et cohérents
+
+- ✅ **Gestion avancée des utilisateurs** :
+  - 3 rôles avec permissions granulaires (USER, CONSULTANT, ADMIN)
+  - Invitation par email (admin invite → utilisateur définit son mot de passe)
+  - Changement de rôle dynamique depuis le dashboard admin
+  - Protection du dernier administrateur
+
+- ✅ **SSO/OIDC avec Keycloak** :
+  - Serveur Keycloak conteneurisé
+  - Authentification unique en un clic
+  - Synchronisation automatique des rôles
+  - Tokens OAuth2 sécurisés
+
+- ✅ **Interface utilisateur premium** :
+  - Design inspiré Google Drive / Notion
+  - 100% en français (interface + emails + documentation)
+  - Toast notifications pour chaque action
+  - États de chargement (skeletons, spinners)
+  - Responsive (desktop, tablette, mobile)
+
+- ✅ **Sécurité renforcée** :
+  - JWT avec expiration configurable
+  - Bcrypt (12 rounds) pour les mots de passe
+  - Helmet.js pour headers HTTP sécurisés
+  - Protection CORS, XSS, CSRF
+  - Middleware de vérification d'accès sur chaque route sensible
+  - Validation stricte des entrées (express-validator)
+
+- ✅ **Privacy-First** :
+  - Toutes les données restent locales
+  - IA 100% locale (pas d'appel externe)
+  - Aucune télémétrie
+  - RGPD-compliant par design
 
 ---
 
