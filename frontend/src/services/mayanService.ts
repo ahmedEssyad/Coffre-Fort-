@@ -146,22 +146,46 @@ class MayanService {
     try {
       const axios = await this.getAxios();
 
-      // Use direct OCR endpoint if available
-      try {
-        const ocrResponse = await axios.get(`/documents/${id}/ocr/`);
-        const content = ocrResponse.data.results?.map((r: any) => r.content).join('\n') || '';
-        return {
-          hasOCR: content.length > 0,
-          content,
-        };
-      } catch {
-        // Fallback: check if document has version_active
-        const doc = await axios.get(`/documents/${id}/`);
-        return {
-          hasOCR: !!doc.data.version_active,
-          content: undefined,
-        };
+      // Get document versions
+      const versionsResponse = await axios.get(`/documents/${id}/versions/`);
+      const versions = versionsResponse.data.results || versionsResponse.data;
+
+      if (!versions || versions.length === 0) {
+        return { hasOCR: false, content: undefined };
       }
+
+      // Get the latest/active version
+      const latestVersion = versions.find((v: any) => v.active) || versions[versions.length - 1];
+
+      // Get all pages for this version
+      const pagesResponse = await axios.get(`/documents/${id}/versions/${latestVersion.id}/pages/`);
+      const pages = pagesResponse.data.results || pagesResponse.data;
+
+      if (!pages || pages.length === 0) {
+        return { hasOCR: false, content: undefined };
+      }
+
+      // Fetch OCR content for each page
+      const ocrContents: string[] = [];
+      for (const page of pages) {
+        try {
+          const ocrResponse = await axios.get(
+            `/documents/${id}/versions/${latestVersion.id}/pages/${page.id}/ocr/`
+          );
+          const content = ocrResponse.data.content || '';
+          if (content.trim().length > 0) {
+            ocrContents.push(content);
+          }
+        } catch (err) {
+          // Page doesn't have OCR yet, skip
+          console.warn(`No OCR for page ${page.id}`);
+        }
+      }
+
+      return {
+        hasOCR: ocrContents.length > 0,
+        content: ocrContents.join('\n\n'),
+      };
     } catch (error) {
       console.error('Error checking OCR status:', error);
       return { hasOCR: false };
