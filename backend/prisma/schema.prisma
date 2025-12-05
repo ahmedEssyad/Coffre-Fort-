@@ -1,4 +1,4 @@
-// Prisma Schema for MayanConnect Backend
+// Prisma Schema for Coffre-Fort Backend
 
 generator client {
   provider = "prisma-client-js"

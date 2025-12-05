@@ -97,7 +97,7 @@ function SetPassword() {
       <div className="set-password-card card">
         <div className="header">
           <h1 className="set-password-title">Définir Votre Mot de Passe</h1>
-          <p className="set-password-subtitle text-secondary">Créez un mot de passe sécurisé pour votre compte MayanConnect</p>
+          <p className="set-password-subtitle text-secondary">Créez un mot de passe sécurisé pour votre compte Coffre-Fort</p>
         </div>
 
         {error && (

@@ -1,7 +1,7 @@
 {
   "name": "mayanconnect-frontend",
   "version": "1.0.0",
-  "description": "MayanConnect Frontend - Client Application",
+  "description": "Coffre-Fort Frontend - Client Application",
   "type": "module",
   "scripts": {
     "dev": "vite",

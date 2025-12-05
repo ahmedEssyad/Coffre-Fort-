@@ -17,7 +17,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🚀 MayanConnect</h1>
+        <h1>🚀 Coffre-Fort</h1>
         <p>Architecture documentaire sécurisée avec IA</p>
 
         <div className="status-card">

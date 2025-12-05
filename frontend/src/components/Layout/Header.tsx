@@ -15,7 +15,7 @@ const Header = () => {
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          <h1 className="header-logo">MayanConnect</h1>
+          <h1 className="header-logo">Coffre-Fort</h1>
         </div>
 
         <div className="header-right">

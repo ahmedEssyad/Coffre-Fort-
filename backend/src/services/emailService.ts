@@ -67,11 +67,11 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>🚀 Bienvenue sur MayanConnect</h1>
+              <h1>🚀 Bienvenue sur Coffre-Fort</h1>
             </div>
             <div class="content">
               <h2>Bonjour ${name} !</h2>
-              <p>Un compte a été créé pour vous sur MayanConnect - votre système de gestion documentaire sécurisé et respectueux de la vie privée.</p>
+              <p>Un compte a été créé pour vous sur Coffre-Fort - votre système de gestion documentaire sécurisé et respectueux de la vie privée.</p>
 
               <p>Pour commencer, veuillez définir votre mot de passe en cliquant sur le bouton ci-dessous :</p>
 
@@ -86,7 +86,7 @@ class EmailService {
               <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
               <p style="word-break: break-all; color: #667eea;">${setPasswordUrl}</p>
 
-              <h3>Qu'est-ce que MayanConnect ?</h3>
+              <h3>Qu'est-ce que Coffre-Fort ?</h3>
               <ul>
                 <li>🔒 <strong>Confidentialité prioritaire :</strong> Toutes les données restent sur votre infrastructure</li>
                 <li>🤖 <strong>Propulsé par IA :</strong> Résumé automatique des documents</li>
@@ -97,7 +97,7 @@ class EmailService {
               <p>Si vous avez des questions, veuillez contacter votre administrateur.</p>
             </div>
             <div class="footer">
-              <p>🤖 Généré avec MayanConnect</p>
+              <p>🤖 Généré avec Coffre-Fort</p>
               <p>Ceci est un email automatique. Merci de ne pas répondre.</p>
             </div>
           </div>
@@ -109,7 +109,7 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: config.email.fromEmail,
         to: email,
-        subject: '🎉 Bienvenue sur MayanConnect - Définissez Votre Mot de Passe',
+        subject: '🎉 Bienvenue sur Coffre-Fort - Définissez Votre Mot de Passe',
         html,
       });
 
@@ -184,7 +184,7 @@ class EmailService {
             </div>
             <div class="content">
               <h2>Bonjour ${name} !</h2>
-              <p>Nous avons reçu une demande de réinitialisation de votre mot de passe MayanConnect.</p>
+              <p>Nous avons reçu une demande de réinitialisation de votre mot de passe Coffre-Fort.</p>
 
               <p>Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe :</p>
 
@@ -202,7 +202,7 @@ class EmailService {
               <p><strong>Vous n'avez pas demandé cela ?</strong> Vous pouvez ignorer cet email en toute sécurité. Votre mot de passe ne sera pas modifié.</p>
             </div>
             <div class="footer">
-              <p>🤖 Généré avec MayanConnect</p>
+              <p>🤖 Généré avec Coffre-Fort</p>
               <p>Ceci est un email automatique. Merci de ne pas répondre.</p>
             </div>
           </div>
@@ -214,7 +214,7 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: config.email.fromEmail,
         to: email,
-        subject: '🔐 Réinitialisez Votre Mot de Passe MayanConnect',
+        subject: '🔐 Réinitialisez Votre Mot de Passe Coffre-Fort',
         html,
       });
 

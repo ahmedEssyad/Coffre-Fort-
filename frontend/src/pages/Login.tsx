@@ -52,7 +52,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card card">
         <div className="login-header">
-          <h1 className="login-title">MayanConnect</h1>
+          <h1 className="login-title">Coffre-Fort</h1>
           <p className="login-subtitle">Connectez-vous à votre compte</p>
         </div>
 

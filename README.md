@@ -1,8 +1,8 @@
-# 🚀 MayanConnect
+# 🚀 Coffre-Fort
 
 **Architecture documentaire sécurisée, conteneurisée et IA**
 
-Projet pour la **Nuit de l'Informatique 2025** - Défi MayanConnect
+Projet pour la **Nuit de l'Informatique 2025** - Défi Coffre-Fort
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![AI](https://img.shields.io/badge/AI-Ollama%20%2B%20Llama%203.2-green.svg)](https://ollama.ai/)
@@ -12,7 +12,7 @@ Projet pour la **Nuit de l'Informatique 2025** - Défi MayanConnect
 
 ## 📋 Description
 
-MayanConnect est une architecture documentaire professionnelle basée sur **Mayan EDMS** (Open Source), enrichie par une **intelligence artificielle locale** pour l'analyse de contenu. Le système offre une solution complète de gestion documentaire avec :
+Coffre-Fort est une architecture documentaire professionnelle basée sur **Mayan EDMS** (Open Source), enrichie par une **intelligence artificielle locale** pour l'analyse de contenu. Le système offre une solution complète de gestion documentaire avec :
 
 - 🐳 **Architecture 100% conteneurisée** (Docker Compose)
 - 🔐 **Séparation claire Auth vs Data** (Backend custom + Mayan EDMS)
@@ -910,7 +910,7 @@ docker-compose restart backend
 
 ```
 [0:00-0:30] INTRODUCTION
-- Bonjour, voici MayanConnect
+- Bonjour, voici Coffre-Fort
 - Architecture documentaire sécurisée avec IA locale
 - 100% conteneurisée, Privacy-first
 
@@ -994,7 +994,7 @@ Projet développé dans le cadre de la **Nuit de l'Informatique 2025**
 
 MIT License
 
-Copyright (c) 2025 MayanConnect Team
+Copyright (c) 2025 Coffre-Fort Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

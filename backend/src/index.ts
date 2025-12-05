@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
-    service: 'MayanConnect Backend',
+    service: 'Coffre-Fort Backend',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
@@ -48,7 +48,7 @@ app.use('/api/admin', adminRoutes);
 // API info endpoint
 app.get('/api', (req: Request, res: Response) => {
   res.json({
-    message: 'MayanConnect API',
+    message: 'Coffre-Fort API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
@@ -69,7 +69,7 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 MayanConnect Backend running on port ${PORT}`);
+  console.log(`🚀 Coffre-Fort Backend running on port ${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Mayan API: ${process.env.MAYAN_API_URL}`);
   console.log(`🤖 Ollama API: ${process.env.OLLAMA_API_URL}`);

@@ -1,7 +1,7 @@
 {
   "name": "mayanconnect-backend",
   "version": "1.0.0",
-  "description": "MayanConnect Backend - Authentication & Access Control",
+  "description": "Coffre-Fort Backend - Authentication & Access Control",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
