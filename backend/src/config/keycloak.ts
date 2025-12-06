@@ -2,7 +2,7 @@ import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
 
 const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'http://keycloak:8080';
-const REALM = process.env.KEYCLOAK_REALM || 'mayanconnect';
+const REALM = process.env.KEYCLOAK_REALM || 'coffrefort';
 
 /**
  * JWKS client pour récupérer les clés publiques de Keycloak

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Script de configuration automatique Keycloak pour MayanConnect
+# Script de configuration automatique Keycloak pour Coffre-Fort
 # Compatible avec accès local et réseau
 
 set -e
 
-echo "🔐 Configuration Keycloak pour MayanConnect"
+echo "🔐 Configuration Keycloak pour Coffre-Fort"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Charger HOST_IP depuis .env
@@ -17,7 +17,7 @@ HOST_IP=${HOST_IP:-localhost}
 KEYCLOAK_URL="http://${HOST_IP}:8080"
 ADMIN_USER="admin"
 ADMIN_PASSWORD="admin"
-REALM="mayanconnect"
+REALM="coffrefort"
 
 echo "📍 Configuration pour : $KEYCLOAK_URL"
 echo ""
@@ -44,9 +44,9 @@ echo "1️⃣  Ouvrir Keycloak Admin Console"
 echo "   → $KEYCLOAK_URL"
 echo "   → Login: $ADMIN_USER / $ADMIN_PASSWORD"
 echo ""
-echo "2️⃣  Créer le Realm 'mayanconnect'"
+echo "2️⃣  Créer le Realm 'coffrefort'"
 echo "   → Menu déroulant 'Master' → Create Realm"
-echo "   → Name: mayanconnect"
+echo "   → Name: coffrefort"
 echo ""
 echo "3️⃣  Créer le client 'frontend-app' (Public)"
 echo "   → Clients → Create client"
@@ -76,7 +76,7 @@ echo "   → Créer: admin, consultant, user"
 echo ""
 echo "6️⃣  Créer un utilisateur de test"
 echo "   → Users → Add user"
-echo "   → Username: admin@mayanconnect.com"
+echo "   → Username: admin@coffrefort.com"
 echo "   → Email verified: ON"
 echo "   → Credentials → Set password: admin123 (Temporary: OFF)"
 echo "   → Role mapping → Assign role: admin"

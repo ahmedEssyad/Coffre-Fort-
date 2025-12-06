@@ -1,7 +1,7 @@
 import { UserManager, WebStorageStateStore, User } from 'oidc-client-ts';
 
 const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8080';
-const REALM = 'mayanconnect';
+const REALM = 'coffrefort';
 
 // Extended profile type for Keycloak claims
 interface KeycloakProfile {

@@ -1,5 +1,5 @@
 {
-  "name": "mayanconnect-backend",
+  "name": "coffrefort-backend",
   "version": "1.0.0",
   "description": "Coffre-Fort Backend - Authentication & Access Control",
   "main": "dist/index.js",

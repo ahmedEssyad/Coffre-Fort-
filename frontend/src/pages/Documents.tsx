@@ -284,7 +284,7 @@ const DocumentUploadModal = ({
       showToast.success(`Document "${label || file.name}" uploadé avec succès! OCR en cours...`);
       onUploadSuccess();
 
-      // OCR will be processed in background by Mayan Celery workers
+      // OCR will be processed in background by Mayan EDMS Celery workers
       // User can view document status in the documents list
     } catch (err) {
       console.error('Upload failed:', err);

@@ -13,7 +13,7 @@ services:
       - mayan-db-data:/var/lib/postgresql/data
       - ./mayan-pg-hba.conf:/etc/postgresql/pg_hba.conf
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     restart: unless-stopped
 
   # PostgreSQL pour Backend Auth
@@ -27,7 +27,7 @@ services:
     volumes:
       - backend-db-data:/var/lib/postgresql/data
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     restart: unless-stopped
 
   # Redis pour Mayan
@@ -35,7 +35,7 @@ services:
     image: redis:7-alpine
     container_name: mayan-redis
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     restart: unless-stopped
 
   # PostgreSQL pour Keycloak
@@ -49,13 +49,13 @@ services:
     volumes:
       - keycloak-db-data:/var/lib/postgresql/data
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     restart: unless-stopped
 
   # Keycloak Identity Provider
   keycloak:
     image: quay.io/keycloak/keycloak:23.0
-    container_name: mayanconnect-keycloak
+    container_name: coffrefort-keycloak
     command: start-dev
     environment:
       KC_DB: postgres
@@ -70,7 +70,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     depends_on:
       - keycloak-db
     restart: unless-stopped
@@ -96,7 +96,7 @@ services:
     volumes:
       - mayan-media:/var/lib/mayan
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     depends_on:
       - mayan-db
       - redis
@@ -107,7 +107,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: mayanconnect-backend
+    container_name: coffrefort-backend
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -127,7 +127,7 @@ services:
     ports:
       - "3001:3000"
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     depends_on:
       - backend-db
       - mayan
@@ -144,11 +144,11 @@ services:
         VITE_BACKEND_API_URL: http://${HOST_IP:-localhost}:3001/api
         VITE_MAYAN_API_URL: http://${HOST_IP:-localhost}:8000
         VITE_KEYCLOAK_URL: http://localhost:8080
-    container_name: mayanconnect-frontend
+    container_name: coffrefort-frontend
     ports:
       - "80:80"
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     depends_on:
       - backend
     restart: unless-stopped
@@ -158,13 +158,13 @@ services:
   # Ollama AI Service
   ollama:
     image: ollama/ollama:latest
-    container_name: mayanconnect-ollama
+    container_name: coffrefort-ollama
     volumes:
       - ollama-data:/root/.ollama
     ports:
       - "11434:11434"
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     restart: unless-stopped
 
   # NGINX Reverse Proxy pour Mayan (avec JWT vérification)
@@ -176,16 +176,16 @@ services:
     ports:
       - "8001:8001"
     networks:
-      - mayanconnect-network
+      - coffrefort-network
     depends_on:
       - mayan
       - keycloak
     restart: unless-stopped
 
 networks:
-  mayanconnect-network:
+  coffrefort-network:
     driver: bridge
-    name: mayanconnect-network
+    name: coffrefort-network
 
 volumes:
   mayan-db-data:

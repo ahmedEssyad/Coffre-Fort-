@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🔒 Configuration HTTPS pour MayanConnect"
+echo "🔒 Configuration HTTPS pour Coffre-Fort"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Charger HOST_IP depuis .env
@@ -39,7 +39,7 @@ if [ "$SKIP_CERT" != "true" ]; then
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout ssl/key.pem \
         -out ssl/cert.pem \
-        -subj "/C=FR/ST=France/L=Paris/O=MayanConnect/OU=Dev/CN=$HOST_IP" \
+        -subj "/C=FR/ST=France/L=Paris/O=Coffre-Fort/OU=Dev/CN=$HOST_IP" \
         -addext "subjectAltName=IP:$HOST_IP,DNS:localhost,DNS:*.localhost" \
         2>/dev/null
 

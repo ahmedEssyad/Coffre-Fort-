@@ -312,7 +312,7 @@ class EmailService {
             </div>
             <div class="content">
               <h2>Bonjour ${name} !</h2>
-              <p>Bonne nouvelle ! Un accès temporaire vous a été accordé sur MayanConnect.</p>
+              <p>Bonne nouvelle ! Un accès temporaire vous a été accordé sur Coffre-Fort.</p>
 
               <div class="info-box">
                 ✨ Vous pouvez maintenant accéder à vos documents pendant la période définie ci-dessous.
@@ -334,7 +334,7 @@ class EmailService {
               </p>
             </div>
             <div class="footer">
-              <p>🤖 Généré avec MayanConnect</p>
+              <p>🤖 Généré avec Coffre-Fort</p>
               <p>Ceci est un email automatique. Merci de ne pas répondre.</p>
             </div>
           </div>
@@ -346,7 +346,7 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: config.email.fromEmail,
         to: email,
-        subject: '✅ Accès Temporaire Accordé - MayanConnect',
+        subject: '✅ Accès Temporaire Accordé - Coffre-Fort',
         html,
       });
 
@@ -457,7 +457,7 @@ class EmailService {
             </div>
             <div class="content">
               <h2>Bonjour ${name} !</h2>
-              <p>Votre accès temporaire sur MayanConnect a été modifié par un administrateur.</p>
+              <p>Votre accès temporaire sur Coffre-Fort a été modifié par un administrateur.</p>
 
               <div style="text-align: center;">
                 <div class="status-badge">${statusText}</div>
@@ -486,7 +486,7 @@ class EmailService {
               </p>
             </div>
             <div class="footer">
-              <p>🤖 Généré avec MayanConnect</p>
+              <p>🤖 Généré avec Coffre-Fort</p>
               <p>Ceci est un email automatique. Merci de ne pas répondre.</p>
             </div>
           </div>
@@ -498,7 +498,7 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: config.email.fromEmail,
         to: email,
-        subject: '🔄 Modification de Votre Accès Temporaire - MayanConnect',
+        subject: '🔄 Modification de Votre Accès Temporaire - Coffre-Fort',
         html,
       });
 
@@ -565,11 +565,11 @@ class EmailService {
             </div>
             <div class="content">
               <h2>Bonjour ${name} !</h2>
-              <p>Nous vous informons que votre accès temporaire sur MayanConnect a été révoqué.</p>
+              <p>Nous vous informons que votre accès temporaire sur Coffre-Fort a été révoqué.</p>
 
               <div class="warning-box">
                 ⚠️ <strong>Accès révoqué</strong><br/>
-                Vous n'avez plus accès aux documents sur MayanConnect.
+                Vous n'avez plus accès aux documents sur Coffre-Fort.
               </div>
 
               <p>Cette révocation a été effectuée par un administrateur. Les raisons peuvent inclure :</p>
@@ -583,10 +583,10 @@ class EmailService {
                 Si vous pensez qu'il s'agit d'une erreur ou si vous avez besoin d'un nouvel accès, veuillez contacter votre administrateur.
               </p>
 
-              <p>Merci d'avoir utilisé MayanConnect.</p>
+              <p>Merci d'avoir utilisé Coffre-Fort.</p>
             </div>
             <div class="footer">
-              <p>🤖 Généré avec MayanConnect</p>
+              <p>🤖 Généré avec Coffre-Fort</p>
               <p>Ceci est un email automatique. Merci de ne pas répondre.</p>
             </div>
           </div>
@@ -598,7 +598,7 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: config.email.fromEmail,
         to: email,
-        subject: '🔒 Accès Temporaire Révoqué - MayanConnect',
+        subject: '🔒 Accès Temporaire Révoqué - Coffre-Fort',
         html,
       });
 
