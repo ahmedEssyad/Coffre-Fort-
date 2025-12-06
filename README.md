@@ -8,8 +8,6 @@ Projet pour la **Nuit de l'Informatique 2025** - Défi ESA-TECH & NIRD
 [![AI](https://img.shields.io/badge/AI-Ollama%20%2B%20Llama%203.2-green.svg)](https://ollama.ai/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-📖 **[Lire l'article : Comment j'ai construit ce système en 12h](./BLOG.md)**
-
 ---
 
 ## 📋 Description
