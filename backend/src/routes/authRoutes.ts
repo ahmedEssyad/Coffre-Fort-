@@ -13,5 +13,6 @@ router.post('/forgot-password', authController.forgotPasswordValidation, authCon
 // Protected routes
 router.get('/me', authenticate, authController.me.bind(authController));
 router.get('/mayan-config', authenticate, checkTemporaryAccess, authController.getMayanConfig.bind(authController));
+router.post('/sso-sync', authController.ssoSyncValidation, authController.ssoSync.bind(authController));
 
 export default router;

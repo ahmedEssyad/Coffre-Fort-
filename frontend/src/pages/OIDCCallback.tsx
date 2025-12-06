@@ -8,7 +8,7 @@ import '../theme.css';
 
 const OIDCCallback = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuthStore();
+  const { login } = useAuthStore();
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -20,26 +20,46 @@ const OIDCCallback = () => {
       const user = await keycloakService.handleCallback();
 
       if (user) {
-        // Sauvegarder le token pour les autres services (mayanService, axios)
-        if (user.access_token) {
-          localStorage.setItem('auth_token', user.access_token);
-        }
-
         // Extraire les infos utilisateur du token
         const userInfo = await keycloakService.getUserInfo();
 
         if (userInfo) {
-          // Mettre à jour le store avec les infos utilisateur
-          setUser({
-            id: userInfo.id,
-            email: userInfo.email,
-            firstName: userInfo.firstName || '',
-            lastName: userInfo.lastName || '',
-            role: userInfo.roles?.includes('admin') ? 'ADMIN' :
-                  userInfo.roles?.includes('consultant') ? 'CONSULTANT' : 'USER',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-          });
+          const role = userInfo.roles?.includes('admin') ? 'ADMIN' :
+                       userInfo.roles?.includes('consultant') ? 'CONSULTANT' : 'USER';
+
+          // Sync SSO user to backend database and get backend JWT token
+          let backendToken = user.access_token; // Fallback to Keycloak token
+          let userObject;
+
+          try {
+            const syncResponse = await fetch(`${import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001/api'}/auth/sso-sync`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userInfo.email,
+                firstName: userInfo.firstName || '',
+                lastName: userInfo.lastName || '',
+                role,
+              }),
+            });
+
+            if (syncResponse.ok) {
+              const syncData = await syncResponse.json();
+              // Use the backend JWT token and database user data
+              backendToken = syncData.token;
+              userObject = syncData.user;
+            } else {
+              throw new Error('Failed to sync user');
+            }
+          } catch (syncError) {
+            console.error('Failed to sync SSO user to database:', syncError);
+            throw new Error('Failed to sync SSO user. Please try again.');
+          }
+
+          // Utiliser login() pour mettre à jour user, token ET isAuthenticated atomiquement
+          login(userObject, backendToken);
 
           showToast.success('Connexion réussie via SSO');
           navigate('/dashboard');

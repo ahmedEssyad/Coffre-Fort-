@@ -218,6 +218,11 @@ const Admin = () => {
                           <span className={`role-badge role-${user.role.toLowerCase()}`}>
                             {user.role}
                           </span>
+                          {user.authMethod === 'SSO' && (
+                            <span className="auth-badge auth-sso">
+                              SSO
+                            </span>
+                          )}
                         </td>
                         <td className="user-status" data-label="Statut">
                           <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>

@@ -207,6 +207,67 @@ class AuthController {
       });
     }
   }
+
+  // Sync SSO user to database
+  ssoSyncValidation = [
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('firstName').optional().isString(),
+    body('lastName').optional().isString(),
+    body('role').optional().isIn(['USER', 'CONSULTANT', 'ADMIN']).withMessage('Invalid role'),
+  ];
+
+  async ssoSync(req: AuthRequest, res: Response) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { email, firstName, lastName, role = 'USER' } = req.body;
+
+      // Check if user already exists
+      let user = await authService.findByEmail(email);
+
+      if (!user) {
+        // Create new user from SSO
+        const tempPassword = Math.random().toString(36).slice(-12);
+        user = await authService.register({
+          email,
+          password: tempPassword,
+          firstName: firstName || '',
+          lastName: lastName || '',
+          role,
+          authMethod: 'SSO',
+        });
+      }
+
+      // Generate backend JWT token for SSO user (same as regular login)
+      const token = authService.generateToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+      return res.status(200).json({
+        message: 'SSO user synced successfully',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isActive: user.isActive,
+          createdAt: user.createdAt.toISOString(),
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to sync SSO user',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
 }
 
 export default new AuthController();

@@ -23,7 +23,7 @@ class MayanService {
 
     try {
       // Get backend URL from environment variable
-      const API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
+      const API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001/api';
 
       // Get Mayan configuration from backend
       const backendAxios = axios.create({
@@ -44,8 +44,14 @@ class MayanService {
           'Content-Type': 'application/json',
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to initialize Mayan service:', error);
+
+      // Check for 403 Forbidden error
+      if (error.response?.status === 403) {
+        throw new Error('Accès interdit: Vous n\'avez pas les permissions nécessaires pour accéder aux documents.');
+      }
+
       throw error;
     }
   }

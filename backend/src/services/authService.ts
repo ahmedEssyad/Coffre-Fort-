@@ -10,6 +10,8 @@ export interface RegisterData {
   password: string;
   firstName?: string;
   lastName?: string;
+  role?: 'USER' | 'CONSULTANT' | 'ADMIN';
+  authMethod?: 'LOCAL' | 'SSO';
 }
 
 export interface LoginData {
@@ -45,6 +47,8 @@ class AuthService {
         password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
+        role: data.role || 'USER',
+        authMethod: data.authMethod || 'LOCAL',
       },
       select: {
         id: true,
@@ -52,12 +56,30 @@ class AuthService {
         firstName: true,
         lastName: true,
         role: true,
+        authMethod: true,
         isActive: true,
         createdAt: true,
       },
     });
 
     return user;
+  }
+
+  // Find user by email
+  async findByEmail(email: string) {
+    return await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        authMethod: true,
+        isActive: true,
+        createdAt: true,
+      },
+    });
   }
 
   // Login user

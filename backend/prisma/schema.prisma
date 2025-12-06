@@ -11,15 +11,16 @@ datasource db {
 
 // User model
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // Hashed with bcrypt
-  firstName String?
-  lastName  String?
-  role      Role     @default(USER)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String   // Hashed with bcrypt
+  firstName  String?
+  lastName   String?
+  role       Role     @default(USER)
+  authMethod String   @default("LOCAL") // "LOCAL" for email/password, "SSO" for Keycloak
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
   temporaryAccesses TemporaryAccess[]

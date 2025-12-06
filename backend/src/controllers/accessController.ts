@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import accessService from '../services/accessService';
+import emailService from '../services/emailService';
 import { body, param, validationResult } from 'express-validator';
 
 class AccessController {
@@ -35,6 +36,19 @@ class AccessController {
         endDate: new Date(endDate),
         createdBy: req.user!.userId,
       });
+
+      // Send email notification to user
+      try {
+        await emailService.sendAccessGrantedEmail(
+          access.user.email,
+          access.user.firstName,
+          access.startDate,
+          access.endDate
+        );
+      } catch (emailError) {
+        console.error('Failed to send access granted email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.status(201).json({
         message: 'Temporary access created successfully',
@@ -146,6 +160,20 @@ class AccessController {
 
       const access = await accessService.updateAccess(id, updateData);
 
+      // Send email notification to user
+      try {
+        await emailService.sendAccessUpdatedEmail(
+          access.user.email,
+          access.user.firstName,
+          access.startDate,
+          access.endDate,
+          access.isActive
+        );
+      } catch (emailError) {
+        console.error('Failed to send access updated email:', emailError);
+        // Don't fail the request if email fails
+      }
+
       res.json({
         message: 'Access updated successfully',
         access,
@@ -163,7 +191,21 @@ class AccessController {
     try {
       const { id } = req.params;
 
+      // Get access info before deleting (for email notification)
+      const access = await accessService.getAccessById(id);
+
       await accessService.deleteAccess(id);
+
+      // Send email notification to user
+      try {
+        await emailService.sendAccessRevokedEmail(
+          access.user.email,
+          access.user.firstName
+        );
+      } catch (emailError) {
+        console.error('Failed to send access revoked email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.json({
         message: 'Access deleted successfully',

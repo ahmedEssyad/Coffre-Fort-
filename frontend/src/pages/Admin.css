@@ -269,6 +269,24 @@
   color: #166534;
 }
 
+.auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-left: 0.5rem;
+}
+
+.auth-sso {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
 .user-status {
   font-size: 0.813rem;
 }
@@ -635,7 +653,8 @@
 
   .role-badge,
   .status-badge,
-  .access-badge {
+  .access-badge,
+  .auth-badge {
     padding: 0.5rem 1rem;
     font-size: 0.813rem;
   }
@@ -680,7 +699,8 @@
 
   .role-badge,
   .status-badge,
-  .access-badge {
+  .access-badge,
+  .auth-badge {
     font-size: 0.688rem;
     padding: 0.25rem 0.625rem;
   }
@@ -791,7 +811,8 @@
 
   .role-badge,
   .status-badge,
-  .access-badge {
+  .access-badge,
+  .auth-badge {
     font-size: 0.75rem;
     padding: 0.375rem 0.75rem;
   }
