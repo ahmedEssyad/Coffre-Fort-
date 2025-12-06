@@ -379,7 +379,7 @@ class MayanService {
   // Search documents
   async searchDocuments(query: string): Promise<MayanDocument[]> {
     try {
-      const response = await this.client.get('/documents/', {
+      const response = await this.client.get('/search/documents.documentsearchresult/', {
         params: {
           q: query,
         },

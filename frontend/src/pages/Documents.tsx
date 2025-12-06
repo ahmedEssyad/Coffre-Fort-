@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Eye,
   Download,
   Trash2,
   Upload,
   FileText,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
 import { Document, DocumentType } from '../services/api';
@@ -23,6 +24,9 @@ const Documents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showUpload, setShowUpload] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<Document[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -104,6 +108,51 @@ const Documents = () => {
     });
   };
 
+  // Search documents with debounce
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setSearchQuery('');
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setError('');
+      const results = await mayanService.searchDocuments(query);
+      setSearchResults(results);
+    } catch (err) {
+      const errorMessage = extractErrorMessage(err);
+      setError(errorMessage);
+      showToast.error(errorMessage);
+      console.error(err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, handleSearch]);
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setError('');
+  };
+
+  // Display documents based on search state
+  const displayedDocuments = searchQuery.trim() ? searchResults : documents;
+
   return (
     <Layout>
       <div className="documents-page">
@@ -120,6 +169,40 @@ const Documents = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="search-container">
+          <div className="search-wrapper">
+            <Search size={20} className="search-icon" />
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Rechercher dans les documents (OCR)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className="search-clear"
+                onClick={handleClearSearch}
+                title="Effacer la recherche"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <div className="search-info">
+              {isSearching ? (
+                <span className="search-loading">Recherche en cours...</span>
+              ) : (
+                <span className="search-results-count">
+                  {searchResults.length} résultat{searchResults.length !== 1 ? 's' : ''} trouvé{searchResults.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
         {error && <div className="error-banner">{error}</div>}
 
         {loading ? (
@@ -130,20 +213,34 @@ const Documents = () => {
               ))}
             </div>
           </div>
-        ) : documents.length === 0 ? (
+        ) : displayedDocuments.length === 0 ? (
           <div className="documents-container">
             <div className="empty-state">
               <div className="empty-icon">
                 <FileText size={48} strokeWidth={1.5} />
               </div>
-              <h3 className="empty-title">Aucun document pour le moment</h3>
-              <p className="empty-description">
-                Téléversez votre premier document pour commencer l'analyse par IA
-              </p>
-              <button className="btn btn-primary" onClick={() => setShowUpload(true)}>
-                <Upload size={18} />
-                Téléverser un Document
-              </button>
+              {searchQuery ? (
+                <>
+                  <h3 className="empty-title">Aucun résultat trouvé</h3>
+                  <p className="empty-description">
+                    Aucun document ne contient "{searchQuery}"
+                  </p>
+                  <button className="btn btn-secondary" onClick={handleClearSearch}>
+                    Effacer la recherche
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="empty-title">Aucun document pour le moment</h3>
+                  <p className="empty-description">
+                    Téléversez votre premier document pour commencer l'analyse par IA
+                  </p>
+                  <button className="btn btn-primary" onClick={() => setShowUpload(true)}>
+                    <Upload size={18} />
+                    Téléverser un Document
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ) : (
@@ -158,7 +255,7 @@ const Documents = () => {
                 </tr>
               </thead>
               <tbody>
-                {documents.map((doc) => (
+                {displayedDocuments.map((doc) => (
                   <tr key={doc.id}>
                     <td data-label="Nom du Document">
                       <div className="document-name">{doc.label}</div>

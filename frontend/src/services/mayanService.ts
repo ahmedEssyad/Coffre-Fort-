@@ -201,7 +201,7 @@ class MayanService {
   // Search documents
   async searchDocuments(query: string): Promise<Document[]> {
     const axios = await this.getAxios();
-    const response = await axios.get('/documents/', {
+    const response = await axios.get('/search/documents.documentsearchresult/', {
       params: {
         q: query,
       },
